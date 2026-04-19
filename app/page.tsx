@@ -20,7 +20,7 @@ export default function Page() {
 
   return (
     <main style={{ padding: 20 }}>
-      <h1>こんにちは、隣人は変人！</h1>
+      <h1>youこんにちは、隣人は変人！</h1>
 
       <ul>
         {characters.map(c => (
