@@ -1,46 +1,82 @@
-"use client"; // useStateを使う場合
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-export default function Page() {
-  const [characters, setCharacters] = useState<any[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+export default function Home() {
+  const [name, setName] = useState("");
+  const [height, setHeight] = useState("");
+  const [hp, setHp] = useState("");
+  const [dialogue, setDialogue] = useState("");
 
-  useEffect(() => {
-    async function getData() {
-      const { data, error } = await supabase.from("characters").select("*");
-      if (error) console.log(error);
-      else setCharacters(data || []);
-    }
-    getData();
-  }, []);
+  const handleSubmit = async () => {
+    // ① characters
+    const { data: char } = await supabase
+      .from("characters")
+      .insert([{ name, height }])
+      .select()
+      .single();
 
-  const selectedCharacter = characters.find(c => c.id === selectedId) || characters[0];
+    if (!char) return alert("キャラ保存失敗");
+
+    // ② stats
+    await supabase.from("stats").insert([
+      {
+        character_id: char.id,
+        hp: Number(hp),
+      },
+    ]);
+
+    // ③ dialogues
+    await supabase.from("dialogues").insert([
+      {
+        character_id: char.id,
+        text: dialogue,
+      },
+    ]);
+
+    alert("保存完了");
+
+    // リセット
+    setName("");
+    setHeight("");
+    setHp("");
+    setDialogue("");
+  };
 
   return (
-    <main style={{ padding: 20 }}>
-      <h1>youこんにちは、隣人は変人！</h1>
+    <div style={{ padding: 20 }}>
+      <h1>キャラ入力</h1>
 
-      <ul>
-        {characters.map(c => (
-          <li key={c.id}>
-            <a href={`/?id=${c.id}`} onClick={(e) => { e.preventDefault(); setSelectedId(c.id); }}>
-              {c.name}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <input
+        placeholder="名前"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <br />
 
-      {selectedCharacter && (
-        <div style={{ marginTop: 20, border: "1px solid #ccc", padding: 12, borderRadius: 8 }}>
-          <h2>{selectedCharacter.name}</h2>
-          <p>身長：{selectedCharacter.height}</p>
-          <p>誕生日：{selectedCharacter.birthday}</p>
-          <p>性格：{selectedCharacter.personality}</p>
-          {selectedCharacter.image_url && <img src={selectedCharacter.image_url} alt={selectedCharacter.name} style={{ width: 150, marginTop: 10 }} />}
-        </div>
-      )}
-    </main>
+      <input
+        placeholder="身長"
+        value={height}
+        onChange={(e) => setHeight(e.target.value)}
+      />
+      <br />
+
+      <input
+        placeholder="HP"
+        value={hp}
+        onChange={(e) => setHp(e.target.value)}
+      />
+      <br />
+
+      <input
+        placeholder="セリフ"
+        value={dialogue}
+        onChange={(e) => setDialogue(e.target.value)}
+      />
+      <br />
+
+      <button onClick={handleSubmit}>保存</button>
+    </div>
   );
 }
