@@ -414,9 +414,9 @@ function RadarChart({
   }, [])
 
   const size = 500
-const center = size / 2
-const radius = 70
-const labelRadius = radius + 18
+  const center = size / 2
+  const radius = 70
+  const labelRadius = radius + 18
   const stepCount = 5
   const angleStep = (Math.PI * 2) / items.length
 
@@ -448,11 +448,11 @@ const labelRadius = radius + 18
 
   const valuePoints = items
     .map((item, i) => {
-const ratio = score(item.value) / 4
+const ratio = score(item.value) 
       const angle = -Math.PI / 2 + i * angleStep
       const x = center + Math.cos(angle) * radius * ratio
       const y = center + Math.sin(angle) * radius * ratio
-      return `${x},${y}`
+      return '${x},${y}'
     })
     .join(' ')
 
