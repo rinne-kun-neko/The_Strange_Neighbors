@@ -23,6 +23,7 @@ type RelatedCard = {
   label: string      // 表示名
   subLabel?: string  // 補足説明
   href?: string | null // 遷移先
+   color?: string
 }
 
 // 吹き出し用セリフ
@@ -38,8 +39,7 @@ const NAME_CHANGER =
 'https://pzrdpwkoewnlwzgzpglv.supabase.co/storage/v1/object/public/characters/images/any/name_changer2.svg'
 const PRIVATE_BUTTON =
 'https://pzrdpwkoewnlwzgzpglv.supabase.co/storage/v1/object/public/characters/images/any/prv_button.svg'
-const RELATED_BALLOON =
-'https://pzrdpwkoewnlwzgzpglv.supabase.co/storage/v1/object/public/characters/images/any/hukidashi.svg'
+const RELATED_BALLOON = '/hukidashi.PNG'
 const KOBANASHI =
 'https://pzrdpwkoewnlwzgzpglv.supabase.co/storage/v1/object/public/characters/images/any/kobanashi2.svg'
 const SHOWMORE_UP =
@@ -52,13 +52,11 @@ const PAGE_UP =
 
   /**
  * シート値を安全に取得
- *
  * null
  * undefined
  * "-"
  * "－"
  * ""
- *
  * は空文字として扱う
  */
 function read(row: Row | null | undefined, key: string) {
@@ -68,15 +66,11 @@ function read(row: Row | null | undefined, key: string) {
   if (text === '' || text === '-' || text === '－') return ''
   return text
 }
-/**
- * 値が存在するか判定
- */
+/** 値が存在するか判定 */
 function exists(value: unknown) {
   return read({ v: value } as Row, 'v') !== ''
 }
-/**
- * 配列からランダムで1件取得
- */
+/*配列からランダムで1件取得*/
 function randomPick<T>(items: T[]) {
   return items[Math.floor(Math.random() * items.length)]
 }
@@ -90,9 +84,7 @@ function randomPick<T>(items: T[]) {
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
 }
-/**
- * 複数候補の中から最初に存在する文字列を返す
- */
+/*複数候補の中から最初に存在する文字列を返す*/
 function firstText(row: Row, keys: string[]) {
   for (const key of keys) {
     const value = read(row, key)
@@ -100,7 +92,6 @@ function firstText(row: Row, keys: string[]) {
   }
   return ''
 }
-
 
 function buildOriginHref(origin: string) {// 親の値探し
   if (!origin) return ''
@@ -110,34 +101,34 @@ function buildOriginHref(origin: string) {// 親の値探し
 }
 
 function MaskIcon({
+  id,
   src, // マスクとして使う画像(SVGなど)のURL
   className = '', // 追加のCSSクラス
   style, // 呼び出し元から渡されるスタイル
   ariaLabel, // スクリーンリーダー向けラベル
-}: {
+}: { 
   src: string
+  id?: string
   className?: string
   style?: CSSProperties
   ariaLabel?: string
 }) {
   return (
     <span
+      id={id}
       // ariaLabelがない場合は支援技術から隠す
       aria-hidden={!ariaLabel}
       // スクリーンリーダー用の名称
       aria-label={ariaLabel}
       className={className}
-      style={{
+      style={{  
         // width / height を効かせるため
         display: 'inline-block',
-
         // アイコンの色。currentColor = CSSのcolor値
         backgroundColor: 'currentColor',
-
         // src画像をマスクとして使用
         WebkitMaskImage: `url(${src})`,
         maskImage: `url(${src})`,
-
         // アイコンを繰り返さない
         WebkitMaskRepeat: 'no-repeat',
         maskRepeat: 'no-repeat',
@@ -157,8 +148,35 @@ function MaskIcon({
   )
 }
 
-
-// 開閉できるセクション
+function ClickableDiv({
+  onClick,
+  className = '',
+  children,
+  ariaLabel,
+}: {
+  onClick: () => void
+  className?: string
+  children: ReactNode
+  ariaLabel?: string
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      className={className}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+    >
+      {children}
+    </div>
+  )
+}
 // ボタン押下で内容の表示/非表示を切り替える
 function SectionToggle({
   label,
@@ -177,8 +195,8 @@ function SectionToggle({
 }) {
   return (
     <section className="grid gap-2">
-      <button
-        type="button"
+      <ClickableDiv
+         
         onClick={onToggle}
         className={[
           'flex items-center gap-3 text-lg font-bold py-2',
@@ -189,7 +207,7 @@ function SectionToggle({
           <>
             <span
               className={[
-                'inline-block transition-transform duration-300',
+                'inline-block text-[50px]transition-transform duration-300',
                 open ? 'rotate-180' : 'rotate-0',
               ].join(' ')}
             >
@@ -204,7 +222,7 @@ function SectionToggle({
 
             <span
               className={[
-                'inline-block transition-transform duration-300',
+                'inline-block text-[50px] transition-transform duration-300',
                 open ? '-rotate-180' : 'rotate-0',
               ].join(' ')}
             >
@@ -212,7 +230,7 @@ function SectionToggle({
             </span>
           </>
         )}
-      </button>
+      </ClickableDiv>
 
       <div
         className={[
@@ -225,7 +243,6 @@ function SectionToggle({
     </section>
   )
 }
-
 
 function NameSwap({
   alias, // ニックネーム・表示名
@@ -257,9 +274,15 @@ function NameSwap({
   if (!hasTempName) {
     return (
       <div className="grid gap-2">
-        <div className="text-[28px] font-black leading-[1.05]">
-          {alias}
-        </div>
+        <div
+  style={{
+    fontSize: '4em',
+    fontWeight: 900,
+    lineHeight: 1.05,
+  }}
+>
+  {alias}
+</div>
       </div>
     )
   }
@@ -268,23 +291,7 @@ function NameSwap({
   return (
     <div className="grid gap-2 border-b border-[color:var(--line)] pb-3">
       <div className="flex items-start gap-3">
-        <button
-          type="button"
-          onClick={() => setSwap((v) => !v)}
-          className="relative mt-1 h-11 w-11 shrink-0"
-          aria-label="名前切り替え"
-        >
-          <span className="absolute left-0 top-0 text-[11px]">↘</span>
-          <span className="absolute bottom-0 right-0 text-[11px]">↖</span>
-          <span
-            className={[
-              'absolute inset-1 grid place-items-center rounded-xl bg-current/10 text-base font-black transition-transform duration-700',
-              swap ? 'rotate-[360deg]' : 'rotate-0',
-            ].join(' ')}
-          >
-            <MaskIcon src={NAME_CHANGER} className="h-full w-full" />
-          </span>
-        </button>
+        
 
         <div className="min-w-0 flex-1">
           <div className="relative min-h-[66px] overflow-hidden">
@@ -311,30 +318,9 @@ function NameSwap({
             {tempSurnamePhonetic} {givenNamePhonetic}
           </div>
 
-          <div className="text-[12px] leading-5 opacity-85">
-            {originHref ? (
-              <>
-                <Link href={originHref} className="text-inherit no-underline">
-                  {tempSurname}
-                </Link>{' '}
-                {givenName}
-              </>
-            ) : (
-              <>
-                {tempSurname} {givenName}
-              </>
-            )}
-          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onToggleView}
-          className="mt-1 w-[92px] shrink-0 overflow-hidden"
-          aria-label="表裏切り替え"
-        >
-          <img src={PRIVATE_BUTTON} alt="" className="h-[92px] w-full object-contain opacity-0" />
-        </button>
+       
       </div>
     </div>
   )
@@ -345,17 +331,19 @@ function ValueLine({
   value,
 }: {
   label: string
-  value?: string | number | null
+  value?: string
 }) {
-  const text = read({ v: value } as Row, 'v')
-  if (!text) return null
+  if (!value) return null
 
   return (
-    <div className="grid gap-1">
-      <div className="text-[11px] font-bold tracking-[0.12em] underline underline-offset-4 opacity-75">
+    <div className="profile-row">
+      <div className="profile-row__label">
         {label}
       </div>
-      <div className="whitespace-pre-wrap text-[14px] leading-7">{text}</div>
+
+      <div className="profile-row__value">
+        {value}
+      </div>
     </div>
   )
 }
@@ -375,7 +363,12 @@ function InversePill({
       <div className="text-[11px] font-bold tracking-[0.12em] underline underline-offset-4 opacity-75">
         {label}
       </div>
-      <div className="inline-block w-fit rounded-[14px] bg-[color:var(--fg)] px-3 py-1.5 text-[14px] font-medium text-[color:var(--bg)]">
+      <div
+        className="inline-block w-fit rounded-[14px] bg-[color:var(--fg)] px-3 py-1.5 text-[14px] font-medium"
+        style={{
+          color: 'var(--bg)',
+        }}
+      >
         {text}
       </div>
     </div>
@@ -420,11 +413,28 @@ function RadarChart({
     return () => window.clearTimeout(id)
   }, [])
 
-  const size = 320
-  const center = size / 2
-  const radius = 110
+  const size = 500
+const center = size / 2
+const radius = 70
+const labelRadius = radius + 18
   const stepCount = 5
   const angleStep = (Math.PI * 2) / items.length
+
+  const score = (value: string) => {
+  switch (String(value).trim()) {
+    case '×':
+      return 1
+    case '△':
+      return 2
+    case '〇':
+    case '○':
+      return 3
+    case '◎':
+      return 4
+    default:
+      return 0
+  }
+}
 
   const ringPoints = (ratio: number) =>
     items
@@ -438,7 +448,7 @@ function RadarChart({
 
   const valuePoints = items
     .map((item, i) => {
-      const ratio = clamp(item.value, 0, 100) / 100
+const ratio = score(item.value) / 4
       const angle = -Math.PI / 2 + i * angleStep
       const x = center + Math.cos(angle) * radius * ratio
       const y = center + Math.sin(angle) * radius * ratio
@@ -446,12 +456,12 @@ function RadarChart({
     })
     .join(' ')
 
-  const labelRadius = radius + 30
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[340px]">
-      <svg viewBox={`0 0 ${size} ${size}`} className="h-full w-full overflow-visible">
-        {[1, 2, 3, 4, 5].map((step) => {
+<div className="relative mx-auto aspect-square w-40 hide"><svg
+  viewBox={`0 0 ${size} ${size}`}
+  className="w-full h-full"
+>        {[1, 2, 3, 4, 5].map((step) => {
           const ratio = step / stepCount
           return (
             <polygon
@@ -498,16 +508,16 @@ function RadarChart({
             transition: 'transform .75s cubic-bezier(.2,.9,.1,1), opacity .35s ease',
           }}
         >
-          <polygon
-            points={valuePoints}
-            fill="currentColor"
-            fillOpacity={0.18}
-            stroke="currentColor"
-            strokeOpacity={0.9}
-            strokeWidth={2}
-          />
+         <polygon
+  points={valuePoints}
+  fill="currentColor"
+  fillOpacity={0.45}
+  stroke="currentColor"
+  strokeOpacity={0.95}
+  strokeWidth={1.5}
+/>
           {items.map((item, i) => {
-            const ratio = clamp(item.value, 0, 100) / 100
+            const ratio = clamp(item.value, 0, 4)/4
             const angle = -Math.PI / 2 + i * angleStep
             const x = center + Math.cos(angle) * radius * ratio
             const y = center + Math.sin(angle) * radius * ratio
@@ -523,6 +533,27 @@ function RadarChart({
             )
           })}
         </g>
+        {items.map((item, i) => {
+  const angle = -Math.PI / 2 + i * angleStep
+
+  const x = center + Math.cos(angle) * labelRadius
+  const y = center + Math.sin(angle) * labelRadius
+
+  return (
+    <text
+      key={`label-${item.label}`}
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="middle"
+      fontSize="5"
+      fill="currentColor"
+      opacity="0.8"
+    >
+      {item.label}
+    </text>
+  )
+})}
       </svg>
 
       {items.map((item, i) => {
@@ -554,44 +585,120 @@ function RadarChart({
     </div>
   )
 }
+// 1個の吹き出し
+function Balloon({ item }: { item: RelatedCard }) {
+  const [active, setActive] = useState(false)
 
-function RelatedBubble({ item }: { item: RelatedCard }) {
-  const hasSub = exists(item.subLabel)
+  return (
+   <Link
+ href={item.href || '#'}
+ scroll={true}
+      className="group block"
+      style={{ cursor: 'default',position: 'relative' }}
+      onMouseEnter={() => setActive(true)}
+      onMouseLeave={() => setActive(false)}
+      onTouchStart={() => setActive(true)}
+      onTouchEnd={() => setActive(false)}
+    >
+      <div
+  className="relative"
+          style={
+          { width: '100%',height: '100%',  flexShrink: 0,
+            color: 'var(--fg)',       // 通常色
+            '--hover-color': item.color || '#c60000',
+            position: 'relative',
+          } as CSSProperties
+        }
+      /*<img 
+  src={RELATED_BALLOON}
+  alt=""
+  style={{
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+  }}
+/>*/>
+  <img
+  src={RELATED_BALLOON}
+  alt=""
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+  }}
+/>
+<div
+  className="absolute inset-0"
+  style={{
+    background: 'red',
+    position: 'absolute',
+    top: 0,
+    borderStyle: 'inset',
+    borderWidth: '3px',
+  }}
+/><div
+  className="inset-0 transition-opacity duration-300"
+  style={{
+    opacity: active ? 1 : 0,
+    background: 'var(--hover-color)',
+    maskImage: `url(${RELATED_BALLOON})`,
+    WebkitMaskImage: `url(${RELATED_BALLOON})`,
+    maskSize: '100% 100%',
+    WebkitMaskSize: '100% 100%',
+    maskRepeat: 'no-repeat',
+    WebkitMaskRepeat: 'no-repeat',
+  }}
+/>
+        <div className="LABEL absolute inset-0 z-10” style={{color:'inherit',top:'0',left:'0',right:'0',bottom:'0',display:'flex',alignItems:'center',justifyContent:'center'}}>"
+        style={{ position: 'absolute',top:'0',color:'inherit' }}>
+         <div
+  className="font-bold"
+  style={{
+    width: '100%',
+    color: 'inherit',
+    fontSize: '14px',
+    marginTop: '1em',
+  }}
+>
+  {item.label}
+</div>
 
-  const body = (
-    <div className="relative min-h-[92px] overflow-hidden rounded-[18px] bg-[color:var(--fg)] px-3 py-3 text-[color:var(--bg)]">
-      <img
-        src={RELATED_BALLOON}
-        alt=""
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-18"
-      />
-
-      <div className="relative z-10 grid gap-1">
-        <div className="font-bold leading-5" style={{ fontSize: 'clamp(10px, 2.3vw, 13px)' }}>
-          {item.label}
+          {item.subLabel && (
+<div
+  className="mt-1 text-xs opacity-80"
+  style={{
+    position: 'absolute',top:'0',
+    color: 'var(--bg)',
+  }}
+>
+  {item.subLabel}
+</div>          )}
         </div>
-        {hasSub ? (
-          <div className="leading-4 opacity-80" style={{ fontSize: 'clamp(9px, 2vw, 11px)' }}>
-            {item.subLabel}
-          </div>
-        ) : null}
       </div>
-
-      <div className="absolute -right-1 bottom-5 h-4 w-4 rotate-45 bg-[color:var(--fg)]" />
+    </Link>
+  )}
+function RelatedBubble({ items }: { items: RelatedCard[] }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '2px',
+        justifyContent:'flex-start',
+        padding: '0 18px 0 8px',
+        width: '100%',
+      }}
+    >
+      {items.slice(0, 5).map((item, i) => (
+        <Balloon
+          key={i}
+          item={item}
+        />
+      ))}
     </div>
   )
-
-  if (item.href) {
-    return (
-      <Link href={item.href} className="block">
-        {body}
-      </Link>
-    )
-  }
-
-  return body
 }
-
 function SpeechBubble({
   source,
   text,
@@ -625,7 +732,14 @@ function SpeechBubble({
 
 function GalleryTile({ src }: { src: string }) {
   return (
-    <div className="aspect-square overflow-hidden rounded-[18px] bg-black/10">
+    <div className="aspect-square overflow-hidden rounded-[18px] bg-black/10" style={{
+      width: '100%',
+      height: '100%', 
+      aspectRatio: '1 / 1',
+      borderRadius: '18px',
+      overflow: 'hidden',
+
+    }}>
       <img src={src} alt="" className="h-full w-full object-cover" />
     </div>
   )
@@ -672,29 +786,37 @@ export default function CharacterPageClient({
     dialogue: true,
   })
 
+const fallbackCards: RelatedCard[] = [
+  { label: '???', subLabel: 'unknown' },
+  { label: '???', subLabel: 'unknown' },
+  { label: '???', subLabel: 'unknown' },
+  { label: '???', subLabel: 'unknown' },
+  { label: '???', subLabel: 'unknown' },
+]
+
+  const displayCards = [...relationCards, ...fallbackCards].slice(0, 5)
+
   const timerRef = useRef<number | null>(null)
 
   const pageStyle = useMemo(() => {
-    if (view === 'front') {
+    if (view === 'front') {/*表色*/
       return {
         '--bg': colorV,
         '--fg': color,
         '--line': color,
       } as CSSProperties
     }
-
-    if (view === 'back') {
+    if (view === 'back') {/*裏色*/
       return {
         '--bg': color,
         '--fg': colorV,
         '--line': colorV,
       } as CSSProperties
     }
-
-    return {
-      '--bg': '#ffffff',
-      '--fg': '#000000',
-      '--line': '#000000',
+    return {/*プラベ色*/
+      '--bg': '#000000',
+      '--fg': '#ffffff',
+      '--line': '#ffffff',
     } as CSSProperties
   }, [view, color, colorV])
 
@@ -704,7 +826,6 @@ export default function CharacterPageClient({
   const tempSurnamePhonetic = read(character, 'temp_surname_phonetic')
   const givenNamePhonetic = read(character, 'given_name_phonetic')
   const origin = read(character, 'origin')
-
   const surname = read(character, 'surname')
   const surnamePhonetic = read(character, 'surname_phonetic')
 
@@ -712,17 +833,14 @@ const frontStandImage =
   standImage ||
   read(character, 'stand_image') ||
   read(ids0Row, 'stand_image')
-
 const frontSymbolImage =
   symbolImage ||
   read(character, 'symbol_image') ||
   read(ids0Row, 'symbol_image')
-
 const frontRaceImage =
   raceImage ||
   read(character, 'race_image') ||
   read(ids0Row, 'race_image')
-
 const frontDeathImage =
   deathImage ||
   read(character, 'death_image') ||
@@ -747,7 +865,7 @@ const frontDeathImage =
   const basicRows = [
     ['年齢', read(character, 'prime_age')],
     ['身長', read(character, 'height')],
-    ['誕生日', [birthMonth, birthDay, zodiac].filter(Boolean).join(' ')],
+    ['誕生日', [birthMonth,"/",birthDay,zodiac].filter(Boolean).join(' ')  ],
     ['利き手', read(character, 'dominant_hand')],
     ['係', read(character, 'club_order')],
     ['一人称', read(character, 'first_person_pronoun')],
@@ -761,14 +879,14 @@ const frontDeathImage =
   ] as const
 
   const radarItems = [
-    { label: 'ATK', value: Number(read(character, 'atk')) || 0 },
-    { label: 'DEF', value: Number(read(character, 'def')) || 0 },
-    { label: 'STR', value: Number(read(character, 'str')) || 0 },
-    { label: 'HP', value: Number(read(character, 'hp')) || 0 },
-    { label: 'STA', value: Number(read(character, 'stamina')) || 0 },
-    { label: 'MP', value: Number(read(character, 'mp')) || 0 },
-    { label: 'DEX', value: Number(read(character, 'dex_evasion')) || 0 },
-    { label: 'ASPD', value: Number(read(character, 'attack_speed')) || 0 },
+    { label: 'ATK', value: read(character, 'atk') || 0 },
+    { label: 'DEF', value: read(character, 'def') || 0 },
+    { label: 'STR', value: read(character, 'str') || 0 },
+    { label: 'HP', value: read(character, 'hp') || 0 },
+    { label: 'STA', value: read(character, 'stamina') || 0 },
+    { label: 'MP', value: read(character, 'mp') || 0 },
+    { label: 'DEX', value: read(character, 'dex_evasion') || 0 },
+    { label: 'ASPD', value: read(character, 'attack_speed') || 0 },
   ]
 
   const rightBars = [
@@ -1010,12 +1128,11 @@ const frontDeathImage =
       className="mx-auto min-h-screen max-w-[760px] px-3 pb-32 pt-16"
       style={{
         ...pageStyle,
-        background: 'var(--bg)',
-        color: 'var(--fg)',
+        background:'var(--bg)',color: 'var(--fg)', isolation: 'isolate'
       }}
     >
       {transition === 'toBack' ? (
-        <div
+          <div
           className="fixed inset-0 z-50 pointer-events-none"
           style={{
             background: color,
@@ -1038,48 +1155,103 @@ const frontDeathImage =
       <header
         className={[
           'fixed left-0 right-0 top-0 z-40 border-b border-black/10 transition-all duration-300',
-          isScrolled ? 'bg-[color:var(--bg)]/55 backdrop-blur-[2px]' : 'bg-[color:var(--bg)]/78 backdrop-blur-[5px]',
         ].join(' ')}
+        style={{ position: 'fixed', left: 0,top: 0, zIndex: 40 ,minHeight:'56px',width:'50%',overflow:'hidden'}}
       >
-        <div className="mx-auto flex max-w-[760px] items-center justify-between px-3 py-3">
-          <Link href="/" className="block text-[color:var(--fg)]">
-            <MaskIcon src={TITLE_LOGO} className="h-8 w-auto" />
+        <div  className="box-wrap" 
+              style={{ position: 'relative', width: '10%', height: '100%' }}  >
+        
+        <div    className="mx-auto flex max-w-[760px] items-center justify-between px-3 py-3">
+          <Link id="top-logo" href="/" className="block text-[color:var(--fg)] cursor-default no-underline"
+                style={{ display: 'block', position: 'relative', width:'100%',height:'100%' ,color: 'var(--fg)', textDecoration: 'none' }}
+          >
+              <MaskIcon src={TITLE_LOGO}
+                style={{   width: '112px',   height: '112px', }}
+              />
           </Link>
 
-          <button
-            type="button"
+  
+        </div>
+        </div>
+      </header>
+      <div id="bottom-images" className="fixed bottom-0 right-0 rflow-visible" style={{ zIndex: '-1' }}>
+          <div className="relative overflow-visible">
+              <ClickableDiv
+                onClick={handleStandClick}
+                className="relative overflow-visible rounded-none"
+                aria-label="立ち絵を押すとしゃべる"
+              >
+                <img src={frontStandImage}
+                  alt="キャライラスト"
+                 className="
+                 right-0
+                 bottom-0
+                 h-screen
+                 w-auto
+                 object-contain
+                 pointer-events-none
+                 
+                absolute
+                  "
+                />   
+                <div
+                  className={[
+                    'absolute inset-0 transition-all duration-300',
+                    isScrolled ? 'bg-[color:var(--bg)]/10 backdrop-blur-[2px]' : 'bg-transparent',
+                  ].join(' ')}
+                />
+              </ClickableDiv>
+          </div>
+      </div>
+
+      <div style={{ height: '56px' }}></div>
+            ** head end **
+
+        <ClickableDiv
+        style={{
+    width: 40,
+    height: 40,
+    display: 'inline-block',
+    position: 'fixed',
+    right: '0',
+    top: '0',
+  }}
             onClick={() => switchView(view === 'private' ? 'front' : 'private')}
             className="grid h-7 w-7 place-items-center opacity-25"
             aria-label="プライベートへ"
+            
           >
-            <MaskIcon src={PRIVATE_BUTTON} className="h-7 w-7" />
-          </button>
-        </div>
-      </header>
-
+            <MaskIcon src={PRIVATE_BUTTON} style={{
+    width: 40,
+    height: 40,
+    color: 'var(--bg)',
+    display: 'inline-block',
+    position: 'fixed',
+    right: '0',
+    top: '0',
+  }}
+/>
+          </ClickableDiv> 
+フロント表示
       {view === 'front' ? (
         <div className="grid gap-4">
           <section className="grid gap-4">
             <div className="grid gap-4">
               <div className="grid grid-cols-[44px_1fr_92px] items-start gap-3">
-                <button
-                  type="button"
+                <ClickableDiv
+                   
                   onClick={() => setView('front')}
                   className="relative mt-1 h-11 w-11 shrink-0"
                   aria-label="名前切り替え"
                 >
-                  <span className="absolute left-0 top-0 text-[11px]">↘</span>
-                  <span className="absolute bottom-0 right-0 text-[11px]">↖</span>
+                 
                   <span className="absolute inset-1 grid place-items-center rounded-xl bg-current/10">
-                    <MaskIcon
-                      src={NAME_CHANGER}
-                      className={[
-                        'h-full w-full transition-transform duration-700',
-                        exists(tempSurname) ? 'rotate-0' : 'rotate-0',
-                      ].join(' ')}
-                    />
+                    <MaskIcon src={NAME_CHANGER} 
+                    style={{    width: 40,    height: 40,    display: 'inline-block', 
+                    }}
+/>
                   </span>
-                </button>
+                </ClickableDiv>
 
                 <div className="min-w-0">
                   <NameSwap
@@ -1093,38 +1265,29 @@ const frontDeathImage =
                   />
                 </div>
 
-                <button
-                  type="button"
+                <ClickableDiv
+                   id="front-symbol"
                   onClick={() => switchView('back')}
                   className="w-[92px] shrink-0 overflow-hidden"
                   aria-label="表裏切り替え"
                 >
-                  <img src={frontSymbolImage} alt="シンボルマーク" className="h-[92px] w-full object-contain" />
-                </button>
+                 
+                  <MaskIcon 
+                   src={frontSymbolImage} style={{
+    height: "7em", width: "7em" ,
+    color: 'var(--fg)',
+    display: 'inline-block',
+    right: '0',
+    top: '0',
+  }}
+/> 
+                </ClickableDiv>
               </div>
 
-              <button
-                type="button"
-                onClick={handleStandClick}
-                className="relative overflow-hidden rounded-none"
-                aria-label="立ち絵を押すとしゃべる"
-              >
-                <img
-                  src={frontStandImage}
-                  alt="キャライラスト"
-                  className="block h-[380px] w-full object-cover"
-                />
-                <div
-                  className={[
-                    'absolute inset-0 transition-all duration-300',
-                    isScrolled ? 'bg-[color:var(--bg)]/10 backdrop-blur-[2px]' : 'bg-transparent',
-                  ].join(' ')}
-                />
-              </button>
             </div>
           </section>
 
-          <SectionToggle
+          <SectionToggle /*第一プロフ*/
             icon="◀"
             side="left"
             open={openPanels.basic}
@@ -1132,10 +1295,10 @@ const frontDeathImage =
           >
             <section className="grid gap-3">
               {basicRows.map(([label, value]) => (
-                <InversePill key={label} label={label} value={value} />
+                <ValueLine key={label} label={label} value={value} />
               ))}
               {basicRows2.map(([label, value]) => (
-                <ValueLine key={label} label={label} value={value} />
+                <InversePill key={label} label={label} value={value} />
               ))}
             </section>
           </SectionToggle>
@@ -1163,13 +1326,13 @@ const frontDeathImage =
               </div>
 
               <div className="ml-auto grid w-full max-w-[60%] gap-2">
-                <button
-                  type="button"
+                <ClickableDiv
+                   
                   onClick={() => setOpenPanels((s) => ({ ...s, statusMore: !s.statusMore }))}
                   className="flex items-center justify-end gap-2 text-sm font-bold"
                 >
                   <span>showmore↴</span>
-                </button>
+                </ClickableDiv>
 
                 <div
                   className={[
@@ -1179,14 +1342,19 @@ const frontDeathImage =
                 >
                   <div className="overflow-hidden">
                     <div className="grid gap-4 pt-1">
-                      <button
-                        type="button"
+                      <ClickableDiv
+                         
                         onClick={() => setOpenPanels((s) => ({ ...s, statusMore: false }))}
                         className="flex items-center justify-center gap-2"
                         aria-label="showmoreを閉じる"
                       >
-                        <MaskIcon src={SHOWMORE_UP} className="h-7 w-7" />
-                      </button>
+                        <MaskIcon src={SHOWMORE_UP} style={{
+                        width: 40,
+                        height: 40,
+                        display: 'inline-block',
+                       }}
+                      />
+                      </ClickableDiv>
 
                       <div className="grid gap-4">
                         <div className="grid gap-2">
@@ -1232,35 +1400,47 @@ const frontDeathImage =
                         </div>
                       </div>
 
-                      <button
-                        type="button"
+                      <ClickableDiv
+                         
                         onClick={() => setOpenPanels((s) => ({ ...s, statusMore: false }))}
                         className="flex items-center justify-end gap-2"
                         aria-label="showmoreを閉じる"
                       >
-                        <MaskIcon src={SHOWMORE_DOWN} className="h-7 w-7" />
-                      </button>
+                        <MaskIcon src={SHOWMORE_DOWN} style={{
+                          width: 40,
+                          height: 40,
+                          display: 'inline-block',
+                       }}
+                      />
+                      </ClickableDiv>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
           </SectionToggle>
-
+*****************************************************
           <section className="grid gap-3">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4" style={{ 
+              display: 'grid',
+              gridTemplateColumns: '20% 20% 20% 20%',
+              gap: '3px',
+              width: '50%',
+              
+            }}
+            >
               {closedGallery.map((src, i) => (
                 <GalleryTile key={`${src}-${i}`} src={src} />
               ))}
             </div>
 
-            <button
-              type="button"
+            <ClickableDiv
+               
               onClick={() => setOpenPanels((s) => ({ ...s, galleryMore: !s.galleryMore }))}
               className="flex items-center justify-end gap-2 text-sm font-bold"
             >
               <span>showmore↴</span>
-            </button>
+            </ClickableDiv>
 
             <div
               className={[
@@ -1270,35 +1450,39 @@ const frontDeathImage =
             >
               <div className="overflow-hidden">
                 <div className="grid gap-3 pt-1">
-                  <button
-                    type="button"
+                  <ClickableDiv
+                     
                     onClick={() => setOpenPanels((s) => ({ ...s, galleryMore: false }))}
                     className="flex items-center justify-center gap-2"
                     aria-label="ギャラリーを閉じる"
                   >
-                    <MaskIcon src={SHOWMORE_UP} className="h-7 w-7" />
-                  </button>
+                    <MaskIcon src={SHOWMORE_UP} style={{
+                      width: 40,
+                      height: 40,
+                      display: 'inline-block',
+                    }}
+                  />
+                  </ClickableDiv>
 
-                  <div className="columns-2 gap-3 md:columns-3">
-                    {openGallery.map((src, i) => (
-                      <div key={`${src}-${i}`} className="mb-3 break-inside-avoid">
-                        <img src={src} alt="" className="w-full rounded-[18px] object-cover" />
-                      </div>
-                    ))}
-                  </div>
+                  
 
                   <div className="grid gap-2">
                     <div className="text-[12px] font-bold tracking-[0.1em]">stamp</div>
                   </div>
 
-                  <button
-                    type="button"
+                  <ClickableDiv
+                     
                     onClick={() => setOpenPanels((s) => ({ ...s, galleryMore: false }))}
                     className="flex items-center justify-end gap-2"
                     aria-label="ギャラリーを閉じる"
                   >
-                    <MaskIcon src={SHOWMORE_DOWN} className="h-7 w-7" />
-                  </button>
+                    <MaskIcon src={SHOWMORE_DOWN} style={{
+                      width: 40,
+                      height: 40,
+                      display: 'inline-block',
+                    }}
+                  />
+                  </ClickableDiv>
                 </div>
               </div>
             </div>
@@ -1314,7 +1498,10 @@ const frontDeathImage =
               {randomTags.map((tag, i) => (
                 <div
                   key={`${tag}-${i}`}
-                  className="inline-block w-fit rounded-[14px] bg-[color:var(--fg)] px-3 py-1.5 text-[14px] text-[color:var(--bg)]"
+                  className="inline-block w-fit rounded-[14px] bg-[color:var(--fg)] px-3 py-1.5 text-[14px]"
+                  style={{
+                    color: 'var(--bg)',
+                  }}
                 >
                   {tag}
                 </div>
@@ -1352,6 +1539,10 @@ const frontDeathImage =
             open={openPanels.dialogue}
             onToggle={() => setOpenPanels((s) => ({ ...s, dialogue: !s.dialogue }))}
           >
+          <section className="overflow-x-auto"  style={{ marginRight: '16px' }}>
+          <RelatedBubble items={displayCards} />
+          </section>
+          
             <section className="grid gap-3">
               <div className="grid gap-3 md:grid-cols-[132px_1fr] md:items-start">
                 <div className="grid gap-2">
@@ -1363,9 +1554,9 @@ const frontDeathImage =
                     ['battle', '戦闘'],
                     ['other', 'その他'],
                   ].map(([key, label]) => (
-                    <button
+                    <ClickableDiv
                       key={key}
-                      type="button"
+                       
                       onClick={() => setDialogueTab(key as typeof dialogueTab)}
                       className={[
                         'rounded-[14px] px-3 py-2 text-left text-[12px] font-bold transition-colors',
@@ -1375,7 +1566,7 @@ const frontDeathImage =
                       ].join(' ')}
                     >
                       {label}
-                    </button>
+                    </ClickableDiv>
                   ))}
                 </div>
 
@@ -1500,44 +1691,32 @@ const frontDeathImage =
             </section>
           </SectionToggle>
 
-          <section className="grid gap-3">
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
-              {relationCards.map((item, i) => (
-                <RelatedBubble key={`${item.label}-${i}`} item={item} />
-              ))}
-            </div>
-          </section>
+<section className="grid gap-3">
+</section>
 
-          <div className="flex justify-end">
-            <Link href="#smalltalk" className="text-[11px] font-bold tracking-[0.08em] opacity-90">
-              <span className="inline-flex items-center gap-0.5">
-                <span className="text-[10px]">◢</span>
-                <span>■■</span>
-                <span className="text-[16px]">◣</span>
-              </span>
-              <span className="ml-1">Tap to 小咄</span>
-            </Link>
-          </div>
         </div>
       ) : null}
-
+バック表示
       {view === 'back' ? (
         <div className="grid gap-4">
           <section className="grid gap-4">
             <div className="border-b border-[color:var(--line)] pb-3">
               <div className="flex items-start gap-3">
-                <button
-                  type="button"
+                <ClickableDiv
+                   
                   onClick={() => switchView('front')}
                   className="relative mt-1 h-11 w-11 shrink-0"
                   aria-label="表へ戻る"
                 >
-                  <span className="absolute left-0 top-0 text-[11px]">↘</span>
-                  <span className="absolute bottom-0 right-0 text-[11px]">↖</span>
-                  <span className="absolute inset-1 grid place-items-center rounded-xl bg-current/10 text-base font-black">
-                    ↻
+                   <span className="absolute inset-1 grid place-items-center rounded-xl bg-current/10">
+                    <MaskIcon src={NAME_CHANGER} style={{
+                      width: 40,
+                      height: 40,
+                      display: 'inline-block',
+                    }}
+                  />
                   </span>
-                </button>
+                </ClickableDiv>
 
                 <div className="min-w-0 flex-1">
                   <div className="text-[28px] font-black leading-[1.05]">{alias}</div>
@@ -1549,13 +1728,13 @@ const frontDeathImage =
                   </div>
                 </div>
 
-                <button
-                  type="button"
+                <ClickableDiv
+                   
                   onClick={() => switchView('front')}
                   className="mt-1 overflow-hidden"
                 >
-                  <img src={frontSymbolImage} alt="シンボル" className="h-[92px] w-[92px] object-contain" />
-                </button>
+                  <img src={frontSymbolImage} alt="シンボルマーク" style={{ height: "7em", width: "auto" }} />
+                </ClickableDiv>
               </div>
             </div>
 
@@ -1570,15 +1749,24 @@ const frontDeathImage =
               </div>
             ) : null}
 
-            <div className="grid gap-3">
-              <ValueLine label="性別" value={read(character, 'sex')} />
-              <ValueLine label="種族" value={read(character, 'race')} />
-              <ValueLine label="要素" value={read(character, 'element_affinity')} />
-              <ValueLine label="表示/非表示" value={read(character, 'show_hide')} />
-              <ValueLine label="享年" value={read(character, 'age_at_death')} />
-              <ValueLine label="殺意" value={read(character, 'intent')} />
-              <ValueLine label="計画性" value={read(character, 'premeditation')} />
-              <ValueLine label="傷跡" value={read(character, 'scars')} />
+           <div className="grid gap-3">
+            {[
+                  'sex',
+                  'race',
+                  'element_affinity',
+                  'show_hide',
+                  'age_at_death',
+                  'intent',
+                  'premeditation',
+                  'scars',
+                ].filter((field) => read(character, field))
+              .map((field) => (
+                <ValueLine
+                  key={field}
+                  label={read(ids0Row, field)}
+                  value={read(character, field)}
+                />
+              ))}
             </div>
           </section>
 
@@ -1591,7 +1779,7 @@ const frontDeathImage =
           </div>
         </div>
       ) : null}
-
+プライベート
       {view === 'private' ? (
         <div className="grid gap-4 bg-white text-black">
           <section className="grid gap-4">
@@ -1608,61 +1796,81 @@ const frontDeathImage =
                   </div>
                 </div>
 
-                <button
-                  type="button"
+                <ClickableDiv
+                   
                   onClick={() => switchView('front')}
                   className="mt-1 overflow-hidden"
                 >
-                  <img src={frontSymbolImage} alt="シンボル" className="h-[92px] w-[92px] object-contain" />
-                </button>
+                  <img src={frontSymbolImage} alt="シンボルマーク" style={{ height: "7em", width: "auto" }} />
+                </ClickableDiv>
               </div>
             </div>
 
             <div className="grid gap-3">
-              <ValueLine label="あだな" value={read(character, 'alias')} />
-              <ValueLine label="あだなの由来" value={read(character, 'alias_origin')} />
-              <ValueLine label="苗字" value={read(character, 'surname')} />
-              <ValueLine label="名前" value={read(character, 'given_name')} />
-              <ValueLine label="名前の由来" value={read(character, 'name_origin')} />
-              <ValueLine label="アーキタイプ" value={read(character, 'archetype')} />
-              <ValueLine label="同期詳細" value={read(character, 'sync_detail')} />
-              <ValueLine label="所属" value={read(character, 'faction1')} />
-              <ValueLine label="構成要素" value={read(character, 'core_elements')} />
-              <ValueLine label="服装" value={read(character, 'outfit')} />
-              <ValueLine label="メモ" value={read(character, 'memo')} />
+            {[
+              'alias',
+              'alias_origin',
+              'surname',
+              'given_name',
+              'name_origin',
+              'archetype',
+              'sync_detail',
+              'faction1',
+              'core_elements',
+              'outfit',
+              'memo',
+            ]
+            .filter((field) => read(character, field))
+            .map((field) => (
+              <ValueLine
+                key={field}
+                label={read(ids0Row, field)}
+                value={read(character, field)}
+              />
+            ))}
             </div>
 
             <div className="rounded-[24px] bg-white p-4 text-black">
               <div className="mb-2 text-[11px] font-bold tracking-[0.12em] opacity-75">
                 らふ / image
               </div>
-              {frontStandImage ? (
-                <img src={frontStandImage} alt="rough" className="h-[260px] w-full object-contain" />
-              ) : null}
             </div>
           </section>
         </div>
       ) : null}
-
+共通
+ボトム
       <div className="fixed bottom-4 right-4 z-30 flex flex-col items-end gap-2">
-        <button
-          type="button"
+        
+        <ClickableDiv           
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="grid h-11 w-11 place-items-center rounded-full bg-[color:var(--fg)] text-[color:var(--bg)]"
+          className="grid h-11 w-11 place-items-center rounded-full bg-[color:var(--fg)]"
+          style={{ color: 'var(--bg)' }}
           aria-label="上へ戻る"
         >
-          <MaskIcon src={PAGE_UP} className="h-6 w-6" />
-        </button>
-
+          <MaskIcon src={PAGE_UP} style={{
+              fontSize:'40px',
+              width:140,    height: 100,
+              display: 'inline-block',
+              }}
+          />
+        </ClickableDiv>
+      <div id="bottom-images" className="fixed bottom-0 right-0 rflow-visible" style={{ zIndex: '-1' }}>
         {isAtBottom ? (
           <a
             href="#smalltalk"
-            className="inline-flex items-center gap-1 text-[11px] font-bold tracking-[0.08em]"
+            style={{ color: 'var(--fg)' }}
+            className="inline-flex items-center gap-1 text-[5px] font-bold tracking-[0.08em]"
           >
-            <MaskIcon src={KOBANASHI} className="h-10 w-10" />
+            <MaskIcon src={KOBANASHI} style={{
+            width: '10em', height: 'auto',      color: 'currentColor',
+
+            }}
+        />
           </a>
         ) : null}
       </div>
+    </div>  
 
       {speech ? <SpeechBubble source={speech.key} text={speech.text} /> : null}
     </main>

@@ -9,13 +9,9 @@ type RelatedCard = {
   label: string
   subLabel?: string
   href?: string | null
+  color?: string
 }
 
-const FALLBACK_STAND =
-  'https://pzrdpwkoewnlwzgzpglv.supabase.co/storage/v1/object/public/characters/images/stand_color/009.png'
-
-const FALLBACK_SYMBOL =
-  'https://pzrdpwkoewnlwzgzpglv.supabase.co/storage/v1/object/public/characters/images/stand_color/018.png'
 
 function read(row: Row | null | undefined, key: string) {
   const value = row?.[key]
@@ -100,8 +96,7 @@ export default async function CharacterPage({
      FALLBACK
   =========================== */
   const standImage =
-    readWithIds0(data, ids0Row, 'stand_image') ||
-    FALLBACK_STAND
+    readWithIds0(data, ids0Row, 'stand_image') 
 
   /* ===========================
      シンボル
@@ -112,17 +107,16 @@ export default async function CharacterPage({
      FALLBACK
   =========================== */
   const symbolImage =
-    readWithIds0(data, ids0Row, 'symbol_image') ||
-    FALLBACK_SYMBOL
+    readWithIds0(data, ids0Row, 'symbol_image') 
 
   /* ===========================
      死に絵
   =========================== */
-const deathImage =
+ const deathImage =
   readWithIds0(data, ids0Row, 'death_image') ||
   read(data, 'stand_image') ||
   read(ids0Row, 'stand_image')
-  
+
   /* ===========================
      種族画像など
   =========================== */
@@ -164,16 +158,17 @@ const deathImage =
     },
   ).filter((slot) => slot.label)
 
-  const relationCards: RelatedCard[] =
-    pickRandom(relationSlots, 5).map(
-      (slot) => ({
-        label: slot.label,
-        subLabel: slot.subLabel || undefined,
-        href: slot.hrefKey
-          ? `/characters/${slot.hrefKey}`
-          : null,
-      }),
-    )
+const relationCards: RelatedCard[] =
+  pickRandom(relationSlots, 5).map(
+    (slot) => ({
+      label: slot.label,
+      subLabel: slot.subLabel || undefined,
+      href: slot.hrefKey
+        ? `/characters/${slot.hrefKey}`
+        : null,
+      color,
+    }),
+  )
 
   return (
     <CharacterPageClient

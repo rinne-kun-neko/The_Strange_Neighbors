@@ -22,9 +22,15 @@ body{
   margin: 0; /* 余白を消す */
   background: #000; /* 背景を黒に */
   color: var(--fg); /* 文字色（変数） */
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "MS Mincho", serif;
+  font-family: "nicokaku-plus_v2.5","Zen Maru Gothic","Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "MS Mincho", serif;
   font-weight: bold; /* ← 太字にする */
   overflow-x: hidden; /* 横スクロール禁止 */
+}
+@font-face{
+  font-family: "nicokaku-plus_v2.5";
+  src: url("/nicokaku-plus_v2.5/nicokaku_v2-5.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }
 
 /* リンクの見た目 */
@@ -53,67 +59,77 @@ button{
   color: var(--fg);         /* 文字色（変数で管理） */
 }
 
-.page.is-front{ --bg: var(--color_v); --fg: var(--color); --line: var(--color); }
-.page.is-back{ --bg: var(--color); --fg: var(--color_v); --line: var(--color_v); }
-.page.is-private{ --bg: #000000; --fg: #ffffff; --line:#ffffff; }
 
+/* 背景レイヤー全体（画面固定・クリック無効） */
 .bg-stand{
-  position:fixed;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  overflow:hidden;
-}
-.bg-stand img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center center;
-  display:block;
-  filter:none;
-  transition:filter .25s ease, opacity .25s ease;
-}
-.bg-stand::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0);
-  backdrop-filter:blur(0px);
-  transition:background .25s ease, backdrop-filter .25s ease;
-}
-.page.scrolled .bg-stand::after{
-  background:rgba(0,0,0,.10);
-  backdrop-filter:blur(2px);
+  position: fixed;     /* 画面に固定表示 */
+  inset: 0;            /* top/right/bottom/left = 0（全画面） */
+  z-index: 0;          /* 一番奥のレイヤー */
+  pointer-events: none;/* クリック無効（背景操作防止） */
+  overflow: hidden;    /* はみ出し隠す */
 }
 
+/* 背景画像そのもの */
+.bg-stand img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           /* 画面いっぱいにトリミング表示 */
+  object-position: center;     /* 中央基準 */
+  display: block;
+
+  filter: none;                /* 画像フィルター（今は無し） */
+  transition: filter .25s ease, opacity .25s ease; /* 変化をなめらかに */
+}
+
+/* 背景の上に重ねる暗幕・ぼかしレイヤー */
+.bg-stand::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0,0,0,0);   /* 黒いフィルム（今は透明） */
+  backdrop-filter: blur(0px);  /* ぼかし効果 */
+
+  transition: background .25s ease, backdrop-filter .25s ease;
+}
+
+.page.scrolled .bg-stand::after{
+  background: rgba(0,0,0,.10);  /* 少し暗くする */
+  backdrop-filter: blur(2px);   /* ちょっとぼかす */
+}
+
+/* ヘッダー本体（画面固定） */
 .header{
-  position:fixed;
-  left:0;
-  right:0;
-  top:0;
-  z-index:30;
-  height:58px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:var(--header);
-  backdrop-filter: blur(4px);
-  border-bottom:1px solid rgba(255,255,255,.08);
+  position: fixed;            /* 画面に固定 */
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 30;                /* 背景や立ち絵より前面 */
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,.08);
 }
+
+/* 内部コンテンツのレイアウト */
 .header__inner{
-  width:min(100%, 760px);
-  padding:0 12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  width: min(100%, 760px);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
+
+/* ロゴ画像 */
 .header__logo{
-  display:block;
-  width:auto;
-  height:28px;
-  object-fit:contain;
+  display: block;
+  width: auto;
+  height: 28px;
+  object-fit: contain;
 }
+
 .private-btn{
   position:relative;
   width:24px;
@@ -153,30 +169,6 @@ button{
   background:transparent;
   cursor:pointer;
   flex:0 0 auto;
-}
-.name-swap__arrow1{
-  position:absolute;
-  left:0;
-  top:0;
-  font-size:11px;
-  line-height:1;
-}
-.name-swap__arrow2{
-  position:absolute;
-  right:0;
-  bottom:0;
-  font-size:11px;
-  line-height:1;
-}
-.name-swap__core{
-  position:absolute;
-  inset:8px;
-  display:grid;
-  place-items:center;
-  border-radius:10px;
-  background:rgba(255,255,255,.10);
-  transform:rotate(0deg);
-  transition:transform .45s ease;
 }
 .name-swap:hover .name-swap__core{ transform:rotate(360deg); }
 .name-swap__core img{
@@ -371,24 +363,6 @@ button{
   margin-top:10px;
 }
 
-.showmore-wrap{
-  width:min(100%, 60%);
-  margin-left:auto;
-  display:grid;
-  gap:8px;
-}
-.showmore-toggle{
-  width:100%;
-  border:0;
-  background:transparent;
-  color:inherit;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-  gap:8px;
-  padding:0;
-}
 .showmore-toggle__label{
   font-size:12px;
   font-weight:700;
@@ -400,12 +374,6 @@ button{
   display:inline-flex;
   align-items:center;
   gap:2px;
-}
-.showmore-body{
-  overflow:hidden;
-  max-height:0;
-  opacity:0;
-  transition:max-height .5s ease, opacity .25s ease;
 }
 .showmore-body.is-open{
   max-height:2400px;
@@ -599,34 +567,6 @@ button{
   display:grid;
   gap:10px;
 }
-.related-grid{
-  display:grid;
-  grid-template-columns:repeat(5, minmax(0,1fr));
-  gap:8px;
-}
-.related-card{
-  position:relative;
-  min-height:96px;
-  padding:14px 14px 12px;
-  background:var(--fg);
-  color:var(--bg);
-  border-radius:20px;
-  overflow:hidden;
-  display:grid;
-  align-content:center;
-  gap:4px;
-  cursor:pointer;
-}
-.related-card::after{
-  content:"";
-  position:absolute;
-  right:-4px;
-  bottom:18px;
-  width:18px;
-  height:18px;
-  transform:rotate(45deg);
-  background:var(--fg);
-}
 .related-card__main{
   font-weight:900;
   line-height:1.25;
@@ -679,49 +619,13 @@ button{
   gap:2px;
 }
 
-.speech{
-  position:fixed;
-  right:12px;
-  bottom:72px;
-  z-index:45;
-  width:min(58vw, 360px);
-  border-radius:22px;
-  background:#fff;
-  color:#000;
-  border:1px solid var(--fg);
-  box-shadow:0 10px 24px rgba(0,0,0,.18);
-  padding:14px 14px 12px;
-}
-.speech__source{
-  font-size:10px;
-  font-weight:700;
-  opacity:.72;
-  margin-bottom:6px;
-}
-.speech__text{
-  white-space:pre-wrap;
-  font-size:13px;
-  line-height:1.8;
-}
-.speech__tail{
-  position:absolute;
-  right:-4px;
-  bottom:18px;
-  width:16px;
-  height:16px;
-  transform:rotate(45deg);
-  background:#fff;
-  border-right:1px solid var(--fg);
-  border-bottom:1px solid var(--fg);
-}
-
 .section{ margin-top:14px; }
 .hidden{ display:none !important; }
 
 @media (max-width: 720px){
   .hero__top{ grid-template-columns: 38px 1fr 76px; }
   .symbol-btn{ width:76px; height:76px; }
-  .related-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+.related-grid{ grid-template-columns:repeat(5, minmax(0,1fr));}
   .status-top{ grid-template-columns:1fr; }
   .showmore-wrap, .tag-area, .condition-area{ width:100%; }
   .dialogue-tabs{ grid-template-columns:repeat(3, minmax(0,1fr)); }
@@ -748,4 +652,127 @@ button{
   100% {
     clip-path: circle(160% at calc(100% - 56px) 90px);
   }
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: 63px 1fr;
+  min-height: 42px;
+
+  border: 2px solid currentColor;
+  overflow: hidden;
+
+  width: min(200px, 90%);
+
+  margin: 8px 25;
+}
+.profile-row__label{/*題目・項目名*/
+  position:relative;
+
+  display:flex;
+  align-items:center;
+
+  background:var(--fg);
+  color:var(--bg);
+
+  font-size:18px;
+  font-weight:700;
+  
+  justify-content: center;
+
+    position:relative;
+  z-index:1;
+}
+
+.profile-row__label::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -10px;
+  width: 20px;
+  height: 100%;
+
+  background: var(--fg);
+  transform: skewX(-30deg);
+    z-index:-1;
+
+}
+
+.profile-row__value{/*内容*/
+  display:flex;
+  align-items:center;
+  font-size:18px;
+
+  padding-left:44px;
+  padding-right:0;
+  font-family: "Zen Maru Gothic","Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "MS Mincho", serif;
+}
+
+/** ================================== */
+
+.fixed{position:fixed;}
+.items-end{display:flex; justify-content:flex-end;}
+.absolute{position:absolute;}
+.rtelative{position:relative;}
+.relative{position:relative;}
+.hide{display:none;}
+.grid{display:grid;}
+.gap-10{ gap:10px;}
+.gap-3{gap:3px;}
+
+.flex{display:flex;}
+.flex-center{display:flex; align-items:center; justify-content:center;}
+.fixed-col{position:fixed; left:0; top:0;}  
+
+.items-center{display:flex; align-items:center;}
+.justify-center{display:flex; justify-content:center;}
+
+.text-lg{font-size:18px;}
+.font-bold{font-weight:700;}
+.py-2{padding-top:8px; padding-bottom:8px;}
+.overflow-hidden{overflow:hidden;}
+.transition-all{transition:all .25s ease;}
+.inline-block{display:inline-block;}
+
+.duration-500{transition-duration:500ms;}
+.ease-out{transition-timing-function:ease-out;}
+
+.top--400{top:-400px;}
+.overflow-visible{overflow:visible; }
+.bottom-0{bottom:0;}*
+.bottom-4{bottom:4px;}*
+.z-0{z-index:0;}
+.place-items-center{display:grid; place-items:center;}
+.h-full{height:100%;}
+.w-full{width:100%;}
+.object-cover{object-fit:cover;}
+.aspect-square{aspect-ratio:1/1;}
+.overflow-hidden{overflow:hidden;}
+
+
+
+
+
+
+
+
+
+header{
+
+
+
+
+
+
+
+}
+
+
+#top-logo{
+  position:fixed;
+  top:-35px;
+  left:12px;
+  width:44px;
+  height:44px;
+  z-index:50;
 }
