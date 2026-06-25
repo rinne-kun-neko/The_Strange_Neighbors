@@ -420,7 +420,7 @@ const labelRadius = radius + 18
   const stepCount = 5
   const angleStep = (Math.PI * 2) / items.length
 
-  const score = (value: string) => {
+  const score = (value: string | number | null | undefined) => {
   switch (String(value).trim()) {
     case '×':
       return 1
