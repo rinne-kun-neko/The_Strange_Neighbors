@@ -386,16 +386,17 @@ function StatBar({
   const safe = Number.isFinite(n) ? clamp(n, 0, 100) : 0
 
   return (
-    <div className="grid gap-1">
+    <div className="gap-1">
       <div className="text-[11px] font-bold tracking-[0.1em] opacity-80">{label}</div>
-      <div className="h-3 overflow-hidden rounded-full bg-black/10">
+      <div className="h-3 w-full overflow-hidden rounded-full bg-black/10">
         <div
           className="h-full rounded-full transition-[width] duration-700 ease-out"
           style={{
             width: `${safe}%`,
             background: 'currentColor',
+            color: 'var(--fg)',
           }}
-        />
+        />aaaaaaaaa
       </div>
     </div>
   )
@@ -413,11 +414,11 @@ function RadarChart({
     return () => window.clearTimeout(id)
   }, [])
 
-  const size = 500
+  const size = 200
   const center = size / 2
   const radius = 70
-  const labelRadius = radius + 18
-  const stepCount = 5
+  const labelRadius = radius + 10
+  const stepCount = 4
   const angleStep = (Math.PI * 2) / items.length
 
   const score = (value: string | number | null | undefined) => {
@@ -432,7 +433,7 @@ function RadarChart({
     case '◎':
       return 4
     default:
-      return 0
+      return value ? clamp(Number(value), 0, 4) : 0
   }
 }
 
@@ -448,20 +449,20 @@ function RadarChart({
 
   const valuePoints = items
     .map((item, i) => {
-const ratio = score(item.value) 
+const ratio = score(item.value) /4
       const angle = -Math.PI / 2 + i * angleStep
       const x = center + Math.cos(angle) * radius * ratio
       const y = center + Math.sin(angle) * radius * ratio
-      return '${x},${y}'
+      return `${x},${y}`
     })
     .join(' ')
 
 
   return (
-<div className="relative mx-auto aspect-square w-40 hide"><svg
+<div className="relative mx-auto aspect-square w-40 "><svg
   viewBox={`0 0 ${size} ${size}`}
   className="w-full h-full"
->        {[1, 2, 3, 4, 5].map((step) => {
+>        {[0,1, 2, 3, 4,].map((step) => {
           const ratio = step / stepCount
           return (
             <polygon
@@ -469,11 +470,9 @@ const ratio = score(item.value)
               points={ringPoints(ratio)}
               fill="none"
               stroke="currentColor"
-              strokeOpacity={0.18}
-              strokeWidth={1}
-            />
-          )
-        })}
+              strokeOpacity={0.4}
+              strokeWidth={1.2}
+            /> )})}
 
         {items.map((item, i) => {
           const angle = -Math.PI / 2 + i * angleStep
@@ -488,7 +487,7 @@ const ratio = score(item.value)
               x2={x}
               y2={y}
               stroke="currentColor"
-              strokeOpacity={0.24}
+              strokeOpacity={0}
               strokeWidth={1.2}
               strokeDasharray={`${len}`}
               strokeDashoffset={mounted ? '0' : `${len}`}
@@ -508,14 +507,14 @@ const ratio = score(item.value)
             transition: 'transform .75s cubic-bezier(.2,.9,.1,1), opacity .35s ease',
           }}
         >
-         <polygon
-  points={valuePoints}
-  fill="currentColor"
-  fillOpacity={0.45}
-  stroke="currentColor"
-  strokeOpacity={0.95}
-  strokeWidth={1.5}
-/>
+         <polygon /*△枠*/
+            points={valuePoints}
+            fill="currentColor"
+            fillOpacity={0.45}
+            stroke="currentColor"
+            strokeOpacity={0.95}
+            strokeWidth={1.5}
+        />
           {items.map((item, i) => {
             const ratio = clamp(item.value, 0, 4)/4
             const angle = -Math.PI / 2 + i * angleStep
@@ -526,7 +525,7 @@ const ratio = score(item.value)
                 key={item.label}
                 cx={x}
                 cy={y}
-                r="3.5"
+                r="3.5"/*〇さいず*/
                 fill="currentColor"
                 opacity={0.95}
               />
@@ -535,53 +534,24 @@ const ratio = score(item.value)
         </g>
         {items.map((item, i) => {
   const angle = -Math.PI / 2 + i * angleStep
+  const x = center + Math.cos(angle) * labelRadius*1.1
+  const y = center + Math.sin(angle) * labelRadius*1.1
 
-  const x = center + Math.cos(angle) * labelRadius
-  const y = center + Math.sin(angle) * labelRadius
-
-  return (
+  return (/*ステータス文字 */
     <text
       key={`label-${item.label}`}
       x={x}
       y={y}
       textAnchor="middle"
       dominantBaseline="middle"
-      fontSize="5"
+      fontSize="11"
       fill="currentColor"
-      opacity="0.8"
+      opacity="5.8"
     >
       {item.label}
     </text>
-  )
-})}
+  )})}
       </svg>
-
-      {items.map((item, i) => {
-        const angle = -Math.PI / 2 + i * angleStep
-        const x = center + Math.cos(angle) * labelRadius
-        const y = center + Math.sin(angle) * labelRadius
-        return (
-          <div
-            key={item.label}
-            className="pointer-events-none absolute text-[10px] font-bold tracking-[0.08em]"
-            style={{
-              left: `${x}px`,
-              top: `${y}px`,
-              transform: 'translate(-50%, -50%)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {item.label}
-          </div>
-        )
-      })}
-
-      <div
-        className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-current/30 px-3 py-1 text-[10px] font-bold tracking-[0.12em] opacity-80"
-        style={{ transform: 'translate(-50%, -50%)' }}
-      >
-        STATUS
-      </div>
     </div>
   )
 }
@@ -604,22 +574,22 @@ function Balloon({ item }: { item: RelatedCard }) {
   className="relative"
           style={
           { width: '100%',height: '100%',  flexShrink: 0,
-            color: 'var(--fg)',       // 通常色
+            color: 'var(--bg)',
             '--hover-color': item.color || '#c60000',
             position: 'relative',
           } as CSSProperties
         }
-      /*<img 
-  src={RELATED_BALLOON}
-  alt=""
-  style={{
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'contain',
-  }}
-/>*/>
-  <img
+ /*   <MaskIcon src={RELATED_BALLOON} 
+              style={{
+                color: 'var(--fg)',
+              fontSize:'40px',
+               width: '100%',
+               height: '100%',
+              display: 'inline-block',
+              objectFit: 'contain',
+              }}></MaskIcon>*/>
+
+ <img
   src={RELATED_BALLOON}
   alt=""
   style={{
@@ -635,7 +605,7 @@ function Balloon({ item }: { item: RelatedCard }) {
     position: 'absolute',
     top: 0,
     borderStyle: 'inset',
-    borderWidth: '3px',
+    borderWidth: '0px',
   }}
 /><div
   className="inset-0 transition-opacity duration-300"
@@ -650,14 +620,16 @@ function Balloon({ item }: { item: RelatedCard }) {
     WebkitMaskRepeat: 'no-repeat',
   }}
 />
-        <div className="LABEL absolute inset-0 z-10” style={{color:'inherit',top:'0',left:'0',right:'0',bottom:'0',display:'flex',alignItems:'center',justifyContent:'center'}}>"
+        <div /*関連キャラ　文字？*/
+         className="LABEL absolute inset-0 z-10” style={{color:'inherit',top:'0',left:'0',right:'0',bottom:'0',display:'flex',alignItems:'center',justifyContent:'center'}}>"
         style={{ position: 'absolute',top:'0',color:'inherit' }}>
          <div
   className="font-bold"
   style={{
     width: '100%',
-    color: 'inherit',
-    fontSize: '14px',
+color: 'var(--bg)',
+    marginLeft: '5px',
+    fontSize: '20px',
     marginTop: '1em',
   }}
 >
@@ -665,7 +637,7 @@ function Balloon({ item }: { item: RelatedCard }) {
 </div>
 
           {item.subLabel && (
-<div
+<div /*?*/
   className="mt-1 text-xs opacity-80"
   style={{
     position: 'absolute',top:'0',
@@ -786,7 +758,7 @@ export default function CharacterPageClient({
     dialogue: true,
   })
 
-const fallbackCards: RelatedCard[] = [
+const fallbackCards: RelatedCard[] = [/*キャラが足りないときすでにあるのを増やして表示する！*/
   { label: '???', subLabel: 'unknown' },
   { label: '???', subLabel: 'unknown' },
   { label: '???', subLabel: 'unknown' },
@@ -798,7 +770,7 @@ const fallbackCards: RelatedCard[] = [
 
   const timerRef = useRef<number | null>(null)
 
-  const pageStyle = useMemo(() => {
+  const pageStyle = useMemo(() => {/*iro*/
     if (view === 'front') {/*表色*/
       return {
         '--bg': colorV,
@@ -1184,7 +1156,7 @@ const frontDeathImage =
                 <img src={frontStandImage}
                   alt="キャライラスト"
                  className="
-                 right-0
+                 right--100
                  bottom-0
                  h-screen
                  w-auto
@@ -1309,9 +1281,10 @@ const frontDeathImage =
             open={openPanels.status}
             onToggle={() => setOpenPanels((s) => ({ ...s, status: !s.status }))}
           >
-            <section className="grid gap-4">
-              <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-start">
-                <div className="grid gap-3 rounded-[24px] bg-white/5 p-3">
+            <section className="">
+              <div className=" gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-start " style={{width:'30%'}}>
+
+                <div className=" gap-3 rounded-[24px] bg-white/5 p-3">
                   <RadarChart items={radarItems} />
                 </div>
 
@@ -1738,16 +1711,7 @@ const frontDeathImage =
               </div>
             </div>
 
-            {backPortrait.src ? (
-              <div className="overflow-hidden rounded-[24px]">
-                <img
-                  src={backPortrait.src}
-                  alt="裏の立ち絵"
-                  className="block w-full object-cover"
-                  style={backPortraitStyle}
-                />
-              </div>
-            ) : null}
+            
 
            <div className="grid gap-3">
             {[

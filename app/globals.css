@@ -749,7 +749,8 @@ button{
 .aspect-square{aspect-ratio:1/1;}
 .overflow-hidden{overflow:hidden;}
 
-
+.ease-out{transition-timing-function:ease-out;}
+.rounded-full{border-radius:999px;}
 
 
 
