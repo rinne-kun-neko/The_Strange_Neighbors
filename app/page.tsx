@@ -16,6 +16,5 @@ export default async function Page() {
     </div>
   )
 
-  aaaaaaaaaa
   
 }<h1>kkkk</h1>
