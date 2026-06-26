@@ -154,12 +154,14 @@ function ClickableDiv({
   children,
   ariaLabel,
   style,
+  id,
 }: {
   onClick: () => void
   className?: string
   children: ReactNode
   ariaLabel?: string
   style?: React.CSSProperties
+  id?: string
 }) {
   return (
     <div
@@ -405,9 +407,11 @@ function StatBar({
 }
 
 function RadarChart({
+  id,
   items,
 }: {
-  items: Array<{ label: string; value: number }>
+  items: Array<{  label: string; value: string | number }>
+  id?: string
 }) {
   const [mounted, setMounted] = useState(false)
 
@@ -1240,7 +1244,8 @@ const frontDeathImage =
                 </div>
 
                 <ClickableDiv
-                   id="front-symbol"
+                
+                  id='front-symbol'
                   onClick={() => switchView('back')}
                   className="w-[92px] shrink-0 overflow-hidden"
                   aria-label="表裏切り替え"
@@ -1287,7 +1292,9 @@ const frontDeathImage =
               <div className=" gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-start " style={{width:'30%'}}>
 
                 <div className=" gap-3 rounded-[24px] bg-white/5 p-3">
-                  <RadarChart items={radarItems} />
+                  <RadarChart
+                   items={radarItems}
+                   id="radar-chart" />
                 </div>
 
                 <div className="grid gap-4 pt-2">
