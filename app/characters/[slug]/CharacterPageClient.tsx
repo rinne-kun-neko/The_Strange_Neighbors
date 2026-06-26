@@ -634,9 +634,9 @@ function Balloon({ item }: { item: RelatedCard }) {
   style={{
     width: '100%',
 color: 'var(--bg)',
-    marginLeft: '5px',
-    fontSize: '20px',
-    marginTop: '1em',
+    marginLeft: '5%',
+    fontSize: '1.2em',
+    marginTop: '20%',
   }}
 >
   {item.label}
@@ -662,9 +662,9 @@ function RelatedBubble({ items }: { items: RelatedCard[] }) {
       style={{
         display: 'flex',
         flexDirection: 'row',
-        gap: '2px',
+        gap: '3px',
         justifyContent:'flex-start',
-        padding: '0 18px 0 8px',
+        padding: '0 2px 0 8px',
         width: '100%',
       }}
     >
@@ -728,6 +728,7 @@ export default function CharacterPageClient({
   ids0Row,
   color,
   colorV,
+  colorH,
   standImage,
   symbolImage,
   deathImage,
@@ -740,6 +741,7 @@ export default function CharacterPageClient({
   ids0Row: Row | null
   color: string
   colorV: string
+  colorH: string
   standImage: string
   symbolImage: string
   deathImage: string
@@ -776,27 +778,35 @@ const fallbackCards: RelatedCard[] = [/*キャラが足りないときすでに�
 
   const timerRef = useRef<number | null>(null)
 
-  const pageStyle = useMemo(() => {/*iro*/
+  const pageStyle = useMemo((
+
+    ) => {/*iro*/
     if (view === 'front') {/*表色*/
       return {
-        '--bg': colorV,
+        '--ggradBack':read(character, 'color_v'),
+        '--ggradFront': read(character, 'color_v'),
+
+        '--bg': colorV, 
         '--fg': color,
         '--line': color,
       } as CSSProperties
     }
     if (view === 'back') {/*裏色*/
       return {
+        '--ggradBack':read(character, 'color_h')||
+                      read(character, 'color'),
+        '--ggradFront': read(character, 'color'),
         '--bg': color,
         '--fg': colorV,
         '--line': colorV,
       } as CSSProperties
     }
     return {/*プラベ色*/
-      '--bg': '#000000',
-      '--fg': '#ffffff',
+      '--bg': '#ffffff',
+      '--fg': '#000000',
       '--line': '#ffffff',
     } as CSSProperties
-  }, [view, color, colorV])
+  }, [view, color, colorV, colorH])
 
   const alias = read(character, 'alias')
   const tempSurname = read(character, 'temp_surname')
@@ -822,7 +832,8 @@ const frontRaceImage =
 const frontDeathImage =
   deathImage ||
   read(character, 'death_image') ||
-  read(ids0Row, 'death_image')
+  read(character, 'stand_image') ||
+  read(ids0Row, 'stand_image')
 
   const backPortrait = useMemo(() => {
     const death = frontDeathImage
@@ -1103,10 +1114,10 @@ const frontDeathImage =
 
   return (
     <main
-      className="mx-auto min-h-screen max-w-[760px] px-3 pb-32 pt-16"
+      className="mx-auto min-h-screen max-w-screen h-full w-full  px-3 pb-32 pt-16"
       style={{
         ...pageStyle,
-        background:'var(--bg)',color: 'var(--fg)', isolation: 'isolate'
+        color: 'var(--fg)', isolation: 'isolate'
       }}
     >
       {transition === 'toBack' ? (
@@ -1272,7 +1283,7 @@ const frontDeathImage =
             open={openPanels.basic}
             onToggle={() => setOpenPanels((s) => ({ ...s, basic: !s.basic }))}
           >
-            <section className="grid gap-3">
+            <section className="grid gap-3     width:30%">aaa
               {basicRows.map(([label, value]) => (
                 <ValueLine key={label} label={label} value={value} />
               ))}
@@ -1715,14 +1726,21 @@ const frontDeathImage =
                   onClick={() => switchView('front')}
                   className="mt-1 overflow-hidden"
                 >
-                  <img src={frontSymbolImage} alt="シンボルマーク" style={{ height: "7em", width: "auto" }} />
-                </ClickableDiv>
+<MaskIcon 
+                   src={frontSymbolImage} style={{
+    height: "7em", width: "7em" ,
+    color: 'var(--fg)',
+    display: 'inline-block',
+    right: '0',
+    top: '0',
+  }}
+/>                 </ClickableDiv>
               </div>
             </div>
 
             
 
-           <div className="grid gap-3">
+           <div className="gap-3">
             {[
                   'sex',
                   'race',
@@ -1743,7 +1761,7 @@ const frontDeathImage =
             </div>
           </section>
 
-          <div className="grid gap-3">
+          <div className="gap-3">
             <ValueLine label="家族" value={read(character, 'family')} />
             <ValueLine label="背景" value={read(character, 'background')} />
             <ValueLine label="好き" value={read(character, 'likes')} />
@@ -1759,23 +1777,10 @@ const frontDeathImage =
             <div className="border-b border-black/10 pb-3">
               <div className="flex items-start gap-3">
                 <div className="mt-1 h-11 w-11 shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <div className="text-[28px] font-black leading-[1.05]">{alias}</div>
-                  <div className="text-[11px] leading-5 opacity-75">
-                    {surnamePhonetic} {givenNamePhonetic}
-                  </div>
-                  <div className="text-[12px] leading-5 opacity-85">
-                    {surname} {givenName}
-                  </div>
+                <div className="min-w-0 flex-1">            
                 </div>
 
-                <ClickableDiv
-                   
-                  onClick={() => switchView('front')}
-                  className="mt-1 overflow-hidden"
-                >
-                  <img src={frontSymbolImage} alt="シンボルマーク" style={{ height: "7em", width: "auto" }} />
-                </ClickableDiv>
+              
               </div>
             </div>
 
@@ -1827,17 +1832,24 @@ const frontDeathImage =
               display: 'inline-block',
               }}
           />
+
         </ClickableDiv>
-      <div id="bottom-images" className="fixed bottom-0 right-0 rflow-visible" style={{ zIndex: '-1' }}>
+      <div id="bottom-images" className="fixed bottom-0 right-0 rflow-visible" 
+          style={{ zIndex: '-1',margin:'0 auto',
+    display: 'block'
+    ,left: 0
+    ,right: 0
+    ,width: '100%'
+    ,textAlign: 'right'
+           }}>
         {isAtBottom ? (
           <a
             href="#smalltalk"
             style={{ color: 'var(--fg)' }}
-            className="inline-flex items-center gap-1 text-[5px] font-bold tracking-[0.08em]"
+            className="inline-flex items-right gap-1 text-[5px] font-bold tracking-[0.08em] "
           >
             <MaskIcon src={KOBANASHI} style={{
-            width: '10em', height: 'auto',      color: 'currentColor',
-
+            width: '10em', height: '10em',      color: 'currentColor',margin:'10 auto',
             }}
         />
           </a>

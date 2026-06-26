@@ -86,6 +86,8 @@ export default async function CharacterPage({
 
   const color = read(data, 'color') || '#ffffff'
   const colorV = read(data, 'color_v') || '#000000'
+  const colorH = read(data, 'color_h') || color
+
 
   /* ===========================
      立ち絵
@@ -176,6 +178,7 @@ const relationCards: RelatedCard[] =
       ids0Row={ids0Row}
       color={color}
       colorV={colorV}
+      colorH={colorH}
       standImage={standImage}
       symbolImage={symbolImage}
       deathImage={deathImage}

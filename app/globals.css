@@ -1,6 +1,11 @@
 :root{
-  --color: #2de0c9;
-  --color_v: #d61f63;
+  --color: #cdc2ff;
+  --color_v: #910000;
+  --color_h: var(--color_h);
+
+  --ggradBack:  var(--color);
+  --ggradFront: var(--color_h);
+  
   --bg: var(--color_v);
   --fg: var(--color);
   --line: var(--color);
@@ -25,6 +30,13 @@ body{
   font-family: "nicokaku-plus_v2.5","Zen Maru Gothic","Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "MS Mincho", serif;
   font-weight: bold; /* ← 太字にする */
   overflow-x: hidden; /* 横スクロール禁止 */
+  background:linear-gradient(90deg, var(--ggradBack), var(--ggradFront)); 
+}
+
+
+main{
+  background:linear-gradient(90deg, var(--ggradBack), var(--ggradFront));
+
 }
 @font-face{
   font-family: "nicokaku-plus_v2.5";
@@ -752,23 +764,20 @@ button{
 .ease-out{transition-timing-function:ease-out;}
 .rounded-full{border-radius:999px;}
 
+/*.place-items-center{??}*/
+.min-h-screen{height: max-screen;}
 
 
 
+html{
+background:linear-gradient(90deg, var(--ggradBack), var(--ggradFront));
 
-
-
+}
 header{
-
-
-
-
-
-
 
 }
 
-
+      
 #top-logo{
   position:fixed;
   top:-35px;
