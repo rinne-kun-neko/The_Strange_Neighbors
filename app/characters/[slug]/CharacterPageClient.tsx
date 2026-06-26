@@ -153,11 +153,13 @@ function ClickableDiv({
   className = '',
   children,
   ariaLabel,
+  style,
 }: {
   onClick: () => void
   className?: string
   children: ReactNode
   ariaLabel?: string
+  style?: React.CSSProperties
 }) {
   return (
     <div
