@@ -522,7 +522,7 @@ const ratio = score(item.value) /4
             strokeWidth={1.5}
         />
           {items.map((item, i) => {
-            const ratio = clamp(item.value, 0, 4)/4
+            const ratio = clamp(Number(item.value), 0, 4)/4
             const angle = -Math.PI / 2 + i * angleStep
             const x = center + Math.cos(angle) * radius * ratio
             const y = center + Math.sin(angle) * radius * ratio
