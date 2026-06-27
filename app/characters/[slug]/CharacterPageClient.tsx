@@ -109,6 +109,7 @@ function MaskIcon({
 }: { 
   src: string
   id?: string
+  class?: string
   className?: string
   style?: CSSProperties
   ariaLabel?: string
@@ -780,7 +781,7 @@ const fallbackCards: RelatedCard[] = [/*キャラが足りないときすでに�
 
   const pageStyle = useMemo((
 
-    ) => {/*iro*/
+    ) => {/*色*/
     if (view === 'front') {/*表色*/
       return {
         '--ggradBack':read(character, 'color_v'),
@@ -816,6 +817,8 @@ const fallbackCards: RelatedCard[] = [/*キャラが足りないときすでに�
   const origin = read(character, 'origin')
   const surname = read(character, 'surname')
   const surnamePhonetic = read(character, 'surname_phonetic')
+  const sex = read(character, 'sex')
+
 
 const frontStandImage =
   standImage ||
@@ -953,7 +956,7 @@ const frontDeathImage =
 
   const [dialogueTab, setDialogueTab] = useState<'daily' | 'season' | 'room' | 'quest' | 'battle' | 'other'>('daily')
 
-  const speechPool = useMemo(() => {
+  const speechPool = useMemo(() => { /*ランダム台詞？*/
     const columns = [
       ['welcome_line', read(character, 'welcome_line')],
       ['idle_line', read(character, 'idle_line')],
@@ -1151,7 +1154,7 @@ const frontDeathImage =
               style={{ position: 'relative', width: '10%', height: '100%' }}  >
         
         <div    className="mx-auto flex max-w-[760px] items-center justify-between px-3 py-3">
-          <Link id="top-logo" href="/" className="block text-[color:var(--fg)] cursor-default no-underline"
+          <Link id="top-logo" href="/characters/aleph" className="block text-[color:var(--fg)] cursor-default no-underline"
                 style={{ display: 'block', position: 'relative', width:'100%',height:'100%' ,color: 'var(--fg)', textDecoration: 'none' }}
           >
               <MaskIcon src={TITLE_LOGO}
@@ -1228,17 +1231,13 @@ const frontDeathImage =
             <div className="grid gap-4">
               <div className="grid grid-cols-[44px_1fr_92px] items-start gap-3">
                 <ClickableDiv
-                   
                   onClick={() => setView('front')}
                   className="relative mt-1 h-11 w-11 shrink-0"
-                  aria-label="名前切り替え"
-                >
-                 
+                  aria-label="名前切り替え">
                   <span className="absolute inset-1 grid place-items-center rounded-xl bg-current/10">
                     <MaskIcon src={NAME_CHANGER} 
                     style={{    width: 40,    height: 40,    display: 'inline-block', 
-                    }}
-/>
+                    }}/>
                   </span>
                 </ClickableDiv>
 
@@ -1254,14 +1253,12 @@ const frontDeathImage =
                   />
                 </div>
 
-                <ClickableDiv
-                
+                <ClickableDiv /*シンボルマーク*/
                   id='front-symbol'
                   onClick={() => switchView('back')}
                   className="w-[92px] shrink-0 overflow-hidden"
                   aria-label="表裏切り替え"
                 >
-                 
                   <MaskIcon 
                    src={frontSymbolImage} style={{
     height: "7em", width: "7em" ,
@@ -1269,8 +1266,7 @@ const frontDeathImage =
     display: 'inline-block',
     right: '0',
     top: '0',
-  }}
-/> 
+  }}/> 
                 </ClickableDiv>
               </div>
 
@@ -1711,22 +1707,27 @@ const frontDeathImage =
                   </span>
                 </ClickableDiv>
 
-                <div className="min-w-0 flex-1">
-                  <div className="text-[28px] font-black leading-[1.05]">{alias}</div>
-                  <div className="text-[11px] leading-5 opacity-75">
+                <div className="min-w-0 flex-1" /*名前*/
+                >
+                  <div className="text-[9px] leading-5 opacity-75">
                     {surnamePhonetic} {givenNamePhonetic}
                   </div>
                   <div className="text-[12px] leading-5 opacity-85">
                     {surname} {givenName}
                   </div>
+                  <div className="text-[12px] leading-5 opacity-85">
+                    {sex} 
+                  </div>
                 </div>
 
-                <ClickableDiv
-                   
+                <ClickableDiv /*シンボルマーク*/
+                  id='front-symbol'                   
                   onClick={() => switchView('front')}
                   className="mt-1 overflow-hidden"
+                  aria-label="表裏切り替え"
                 >
 <MaskIcon 
+class='front-symbol'
                    src={frontSymbolImage} style={{
     height: "7em", width: "7em" ,
     color: 'var(--fg)',
@@ -1738,12 +1739,22 @@ const frontDeathImage =
               </div>
             </div>
 
-            
+            <div className="text-[12px] leading-5 opacity-85">
+                        種族
+
+              <MaskIcon 
+                    src={frontRaceImage} style={{
+                    height: "7em", width: "7em" ,
+                    color: 'var(--fg)',
+                    display: 'inline-block',
+                    right: '0',
+                    top: '0',
+}}
+              />     
+            </div>
 
            <div className="gap-3">
             {[
-                  'sex',
-                  'race',
                   'element_affinity',
                   'show_hide',
                   'age_at_death',
